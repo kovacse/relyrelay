@@ -60,7 +60,6 @@ app.post('/login', function(request, response){
                 {
                     response.send('Username and/or password is incorrect');
                 }   
-            response.end();
         });
       
 });
