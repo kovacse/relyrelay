@@ -7,6 +7,7 @@
 		<li><a class="signup" href="/register.html">Sign up</a></li>
 		<li><a class="contact" href="contact.html">Contact</a></li>
 		<li><a class="about" href="about.html">About</a></li>
+		<li><a class="logout" href="logout">Logout</a></li>
 	  </ul>
 	<head>
 		<meta charset="utf-8">
@@ -20,10 +21,13 @@
 		<h1> Welcome: <%= username %> </h1>
 		
 		<div class="homepage-list">
-			<li class="homepage-list"><a class="login" href="/server.html">Login</a></li>
-			<li class="homepage-list"><a class="signup" href="/register.html">Sign up</a></li>
-			<li class="homepage-list"><a class="contact" href="contact.html">Contact</a></li>
-			<li class="homepage-list"><a class="about" href="about.html">About</a></li>
+			<button onclick="myFunction()">Chat Now</button>
+
+			<script>
+			function myFunction() {
+			window.open(href="/chat");
+			}
+			</script>
 		</div>
 	</body>
 </html>

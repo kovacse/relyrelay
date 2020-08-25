@@ -41,3 +41,14 @@ div.homepage-list {
     li.homepage-list a:hover {
         background-color: #111;
     }
+
+    div.homepage-list input[type="button"] {
+        width: 100%;
+        padding: 15px;
+        background-color: #535b63;
+        border: 1;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-weight: bold;
+        color: #ffffff;
+    }
