@@ -1,4 +1,4 @@
-ul {
+ul.navbar {
             list-style-type: none;
             margin: 0;
             padding: 0;
@@ -9,7 +9,6 @@ ul {
         li {
             float: left;
         }
-        
         li a {
             display: block;
             color: white;
@@ -22,33 +21,4 @@ ul {
             background-color: #111;
         }
 
-div.homepage-list {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #535b63;
-}
 
-    li.homepage-list a {
-        display: block;
-        color:white;
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-    }
-
-    li.homepage-list a:hover {
-        background-color: #111;
-    }
-
-    div.homepage-list input[type="button"] {
-        width: 100%;
-        padding: 15px;
-        background-color: #535b63;
-        border: 1;
-        box-sizing: border-box;
-        cursor: pointer;
-        font-weight: bold;
-        color: #ffffff;
-    }

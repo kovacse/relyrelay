@@ -9,7 +9,7 @@ var io = require('socket.io');
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
-    host: '35.189.68.169',
+    host: '35.234.144.155',
     user: 'root',
     password: 'password',
     database: 'Accounts'
@@ -137,24 +137,47 @@ app.post('/register', function(request, response){
     });
 
     app.get('/chat', function(request, response){
-        response.sendFile(path.join(__dirname + '/chat.html'));
-        var room_id = online[0] + "_" + online[1];
-        console.log(room_id);
+        var room = online[0] + "_" + online[1];
+        var cql = "SELECT * FROM messaging.messages WHERE room_id = ?";
+        console.log(room)
+        cass_client.execute(cql, [room], { prepare: true }, function(error, result){
+            if(error) throw error;
+            response.render(path.join(__dirname + '/chat.ejs'), {room: room});
+        });
     });
 
-    app.post('/chat_insert', function(request, response){
-        var room_id = online[0] + "_" + online[1];
-        console.log(room_id);
+    app.get('/chat.json', function(request, response){
+        var room = online[0] + "_" + online[1];
+        var cql = "SELECT message_text, sender, toTimeStamp(message_id) as id FROM messaging.messages WHERE room_id = ? ORDER BY message_id ASC";
+        console.log(room)
+        cass_client.execute(cql, [room], { prepare: true }, function(error, result){
+            if(error) throw error;
+            console.log(JSON.stringify(result));
+            response.json(JSON.stringify(result));
+        })
+    });
+
+    app.post('/messaging', function(request, response){
         var message_text = request.body.txt;
         var sender = request.session.username;
 
-        var cql = "INSERT INTO messaging.messages(room_id, message_id, sender, message_text) VALUES (?, now(), ?, ?)";
-        cass_client.execute(cql, [room_id, sender, message_text], { prepare: true }, function (error) {
+        var room = request.body.room;
+        var cql = "INSERT INTO messaging.messages(room_id, message_id, sender, message_text) VALUES (?, now(), ?, ?) USING TTL 3600";
+        cass_client.execute(cql, [room, sender, message_text], { prepare: true }, function (error) {
             if (error) throw error;
             //Inserted in the cluster
             console.log("inserted");
           });
+        response.redirect('/chat');
     });
+
+    /* app.get('/messaging', function(request, response){
+        var room = request.body.room;
+        var cql = "SELECT * FROM messaging.messages WHERE room_id = ?";
+        console.log(room)
+        cass_client.execute(cql, [room], { prepare: true })
+            .then(result=> console.log(result.rows[0]));
+        }); */
 
     /* io.sockets.on('connection', function(socket) {
         socket.on('username', function(username) {
@@ -174,3 +197,5 @@ app.post('/register', function(request, response){
 
 
 app.listen(3000);
+
+
