@@ -5,7 +5,8 @@ var bodyParser = require('body-parser');
 var path = require('path');
 var flash = require('express-flash');
 var cassandra = require('cassandra-driver');
-var io = require('socket.io');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
@@ -17,13 +18,14 @@ var db_connection = mysql.createConnection({
 
 //set up db connection to cassandra (messaging service)
 var cass_client = new cassandra.Client({
-    contactPoints: ['34.105.143.57:9042'], 
+    contactPoints: ['35.189.68.169:9042'], 
     localDataCenter: 'datacenter1',
     keyspace: 'messaging'
     });
     cass_client.connect(function (error) {
     if (error) throw error;
 });
+
 
 
 //using express and its packages
@@ -152,7 +154,6 @@ app.post('/register', function(request, response){
         console.log(room)
         cass_client.execute(cql, [room], { prepare: true }, function(error, result){
             if(error) throw error;
-            console.log(JSON.stringify(result));
             response.json(JSON.stringify(result));
         })
     });
@@ -165,37 +166,17 @@ app.post('/register', function(request, response){
         var cql = "INSERT INTO messaging.messages(room_id, message_id, sender, message_text) VALUES (?, now(), ?, ?) USING TTL 3600";
         cass_client.execute(cql, [room, sender, message_text], { prepare: true }, function (error) {
             if (error) throw error;
-            //Inserted in the cluster
-            console.log("inserted");
           });
         response.redirect('/chat');
     });
 
-    /* app.get('/messaging', function(request, response){
-        var room = request.body.room;
-        var cql = "SELECT * FROM messaging.messages WHERE room_id = ?";
-        console.log(room)
-        cass_client.execute(cql, [room], { prepare: true })
-            .then(result=> console.log(result.rows[0]));
-        }); */
+ 
 
-    /* io.sockets.on('connection', function(socket) {
-        socket.on('username', function(username) {
-            socket.username = username;
-            io.emit('is_online', '🔵 <i>' + socket.username + ' join the chat..</i>');
-        });
-    
-        socket.on('disconnect', function(username) {
-            io.emit('is_online', '🔴 <i>' + socket.username + ' left the chat..</i>');
-        })
-    
-        socket.on('chat_message', function(message) {
-            io.emit('chat_message', '<strong>' + socket.username + '</strong>: ' + message);
-        });
-    
-    }); */
+var server = app.listen(3000);
+//app.listen(3000);
 
+socket = io.listen(server);
 
-app.listen(3000);
-
-
+socket.on('connection', function(socket){
+  console.log('Socket is ready');
+});
