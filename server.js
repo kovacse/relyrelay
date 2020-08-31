@@ -141,7 +141,6 @@ app.post('/register', function(request, response){
     app.get('/chat', function(request, response){
         var room = online[0] + "_" + online[1];
         var cql = "SELECT * FROM messaging.messages WHERE room_id = ?";
-        console.log(room)
         cass_client.execute(cql, [room], { prepare: true }, function(error, result){
             if(error) throw error;
             response.render(path.join(__dirname + '/chat.ejs'), {room: room});
@@ -151,7 +150,6 @@ app.post('/register', function(request, response){
     app.get('/chat.json', function(request, response){
         var room = online[0] + "_" + online[1];
         var cql = "SELECT message_text, sender, toTimeStamp(message_id) as id FROM messaging.messages WHERE room_id = ? ORDER BY message_id ASC";
-        console.log(room)
         cass_client.execute(cql, [room], { prepare: true }, function(error, result){
             if(error) throw error;
             response.json(JSON.stringify(result));
@@ -177,6 +175,11 @@ var server = app.listen(3000);
 
 socket = io.listen(server);
 
-socket.on('connection', function(socket){
+/* socket.on('connection', function(socket){
   console.log('Socket is ready');
-});
+}); */
+
+socket.on('connect', () => {
+    // either with send()
+    socket.send('Hello!');})
+
