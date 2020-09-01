@@ -10,7 +10,7 @@ var io = require('socket.io')(http);
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
-    host: '35.234.144.155',
+    host: '35.189.68.169',
     user: 'root',
     password: 'password',
     database: 'Accounts'
@@ -18,7 +18,7 @@ var db_connection = mysql.createConnection({
 
 //set up db connection to cassandra (messaging service)
 var cass_client = new cassandra.Client({
-    contactPoints: ['35.189.68.169:9042'], 
+    contactPoints: ['34.105.143.57:9042'], 
     localDataCenter: 'datacenter1',
     keyspace: 'messaging'
     });
@@ -164,6 +164,7 @@ app.post('/register', function(request, response){
         var cql = "INSERT INTO messaging.messages(room_id, message_id, sender, message_text) VALUES (?, now(), ?, ?) USING TTL 3600";
         cass_client.execute(cql, [room, sender, message_text], { prepare: true }, function (error) {
             if (error) throw error;
+            socket.emit('added to chat', {'sender': sender});
           });
         response.redirect('/chat');
     });
