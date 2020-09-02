@@ -7,6 +7,7 @@ var flash = require('express-flash');
 var cassandra = require('cassandra-driver');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var neo4j = require('neo4j-driver')
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
@@ -25,6 +26,14 @@ var cass_client = new cassandra.Client({
     cass_client.connect(function (error) {
     if (error) throw error;
 });
+
+//setting up neo4j connection
+//need to be the BOLT port connected
+var neo4j_connection = neo4j.driver(
+    'neo4j://35.234.144.155:7687',
+    neo4j.auth.basic('neo4j', 'password')
+)
+
 
 
 
@@ -67,6 +76,12 @@ app.post('/login', function(request, response){
                     request.session.loggedin = true;
                     request.session.username = username;
                     online.push(username);
+                    //change status in neo4j
+                    var neo4j_session = neo4j_connection.session();
+                    var cyp = 'MERGE (n: User{username: $username}) SET n.online = "true"';
+                    var params = {username: username};
+                    neo4j_session.run(cyp, params);
+
                     response.redirect('/home');
                 }
             else
@@ -79,6 +94,10 @@ app.post('/login', function(request, response){
 app.post('/logout', function(request, response){
     request.session.loggedin = false;
     request.session.username = username;
+    //change staus in neo4j
+    var cyp = 'MERGE (n: User{username: $username}) SET n.online = "false"';
+    var params = {username: username};
+    neo4j_session.run(cyp, params);
     response.redirect('/login');
 });
 
@@ -113,7 +132,17 @@ app.post('/register', function(request, response){
         var helped = 0;
     }
 
-    console.log(helper, helped);
+    //set user type for neo4j db
+    var chelp = "unknown";
+    if (helper == 1 && helped == 1){
+        chelp = "both";
+    }
+    else if(helper == 1){
+        chelp = "helper";
+    }
+    else if(helped == 1){
+        chelp = "helped";
+    }
 
     //check if user already exists
     var sql = "SELECT * FROM `Users` WHERE `username`='"+username+"'";
@@ -134,8 +163,17 @@ app.post('/register', function(request, response){
                 if (err) throw err;
                 console.log("new user inserted");
              });
+
+             //inserting user data into neo4j, too
+            console.log(chelp);
+            var neo4j_session = neo4j_connection.session();
+            var cyp = 'CREATE (n: User{username: $username, type: $type, online: $online})';
+            var params = {username: username, type: chelp, online: "false"};
+            
+            neo4j_session.run(cyp, params);
         }
     })
+    response.redirect("/login")
     });
 
     app.get('/chat', function(request, response){

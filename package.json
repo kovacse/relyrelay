@@ -16,6 +16,7 @@
     "express-session": "^1.17.1",
     "http": "0.0.1-security",
     "mysql": "^2.18.1",
+    "neo4j-driver": "^4.1.1",
     "socket.io": "^2.3.0"
   }
 }
