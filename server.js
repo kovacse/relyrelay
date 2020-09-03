@@ -68,7 +68,49 @@ app.get('/interests', function(request, response){
 });
 
 app.post('/interests', function(request, response){
-    console.log(request.body)
+    //if user has interests, delete all of them so it won`t cause confusion
+    var neo4j_session = neo4j_connection.session();
+    var cyp = 'MATCH (n { username: $username })-[r:INTERESTED_IN]->() DELETE r';
+    var params = {username: request.session.username};
+    
+    neo4j_session.run(cyp, params).then((result) => {
+        neo4j_session.close();
+    }) 
+    
+    //get interests set by user and make connections in db
+
+    if (request.body.interests){
+        console.log(request.body.interests, request.body.interests.length)
+         //this to avoid the creation of an array of letters when only one interest is given
+        if((request.body.interests.length > 1)){
+            var interests = Array.from(request.body.interests)
+            console.log(">1")
+        }
+        else{
+            var interests = []
+            interests.push(request.body.interests);
+        }    
+        var neo4j_conns = []
+        var neo4j_sessions = []
+        
+        for(var i = 0; i < interests.length; i += 1){
+            neo4j_conns[i] = neo4j.driver('neo4j://35.234.144.155:7687',neo4j.auth.basic('neo4j', 'password'))
+            neo4j_sessions[i] = neo4j_conns[i].session()
+            var cyp2 = 'MATCH (a:User),(b:Interest) WHERE a.username = $username AND b.subject = $subject MERGE (a)-[r:INTERESTED_IN]->(b)';
+            var params2 = {username: request.session.username, subject: interests[i]};
+            try{
+                neo4j_sessions[i].run(cyp2, params2)
+            }
+            catch(error){
+                console.log(error)
+            }
+            finally{
+                console.log(i)
+            }  
+            
+        }
+        response.redirect('/home');
+        }
 });
 
 app.post('/login', function(request, response){
