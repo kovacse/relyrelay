@@ -99,7 +99,9 @@ app.post('/interests', function(request, response){
             var cyp2 = 'MATCH (a:User),(b:Interest) WHERE a.username = $username AND b.subject = $subject MERGE (a)-[r:INTERESTED_IN]->(b)';
             var params2 = {username: request.session.username, subject: interests[i]};
             try{
-                neo4j_sessions[i].run(cyp2, params2)
+                neo4j_sessions[i].run(cyp2, params2).then((result) => {
+                    neo4j_session.close();
+                }) 
             }
             catch(error){
                 console.log(error)
