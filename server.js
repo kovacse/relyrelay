@@ -82,11 +82,12 @@ app.post('/interests', function(request, response){
     if (request.body.interests){
         console.log(request.body.interests, request.body.interests.length)
          //this to avoid the creation of an array of letters when only one interest is given
-        if((request.body.interests.length > 1)){
+        if(typeof(request.body.interests) != 'string'){
             var interests = Array.from(request.body.interests)
             console.log(">1")
         }
         else{
+            console.log("string")
             var interests = []
             interests.push(request.body.interests);
         }    
