@@ -63,6 +63,10 @@ app.get('/login', function(request, response){
     response.sendFile(path.join(__dirname + '/server.html'));
 });
 
+app.get('/interests', function(request, response){
+    response.render(path.join(__dirname + '/interests.ejs'));
+});
+
 app.post('/login', function(request, response){
     var username = request.body.username;
     var password = request.body.password;
