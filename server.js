@@ -67,6 +67,10 @@ app.get('/interests', function(request, response){
     response.render(path.join(__dirname + '/interests.ejs'));
 });
 
+app.post('/interests', function(request, response){
+    console.log(request.body)
+});
+
 app.post('/login', function(request, response){
     var username = request.body.username;
     var password = request.body.password;
