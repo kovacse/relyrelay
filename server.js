@@ -11,7 +11,7 @@ var neo4j = require('neo4j-driver')
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
-    host: '35.189.68.169',
+    host: '34.105.143.57',
     user: 'root',
     password: 'password',
     database: 'Accounts'
@@ -19,7 +19,7 @@ var db_connection = mysql.createConnection({
 
 //set up db connection to cassandra (messaging service)
 var cass_client = new cassandra.Client({
-    contactPoints: ['34.105.143.57:9042'], 
+    contactPoints: ['35.234.144.155:9042'], 
     localDataCenter: 'datacenter1',
     keyspace: 'messaging'
     });
@@ -30,7 +30,7 @@ var cass_client = new cassandra.Client({
 //setting up neo4j connection
 //need to be the BOLT port connected
 var neo4j_connection = neo4j.driver(
-    'neo4j://35.234.144.155:7687',
+    'neo4j://35.189.68.169:7687',
     neo4j.auth.basic('neo4j', 'password')
 )
 
@@ -95,7 +95,7 @@ app.post('/interests', function(request, response){
         var neo4j_sessions = []
         
         for(var i = 0; i < interests.length; i += 1){
-            neo4j_conns[i] = neo4j.driver('neo4j://35.234.144.155:7687',neo4j.auth.basic('neo4j', 'password'))
+            neo4j_conns[i] = neo4j.driver('neo4j://35.189.68.169:7687',neo4j.auth.basic('neo4j', 'password'))
             neo4j_sessions[i] = neo4j_conns[i].session()
             var cyp2 = 'MATCH (a:User),(b:Interest) WHERE a.username = $username AND b.subject = $subject MERGE (a)-[r:INTERESTED_IN]->(b)';
             var params2 = {username: request.session.username, subject: interests[i]};
@@ -144,13 +144,16 @@ app.post('/login', function(request, response){
         });
 });
 
-app.post('/logout', function(request, response){
+app.get('/logout', function(request, response){
     request.session.loggedin = false;
-    request.session.username = username;
+    username = request.session.username;
     //change staus in neo4j
+    var neo4j_session = neo4j_connection.session();
     var cyp = 'MERGE (n: User{username: $username}) SET n.online = "false"';
     var params = {username: username};
-    neo4j_session.run(cyp, params);
+    neo4j_session.run(cyp, params).then((result) => {
+        neo4j_session.close();
+    });
     response.redirect('/login');
 });
 
@@ -228,6 +231,30 @@ app.post('/register', function(request, response){
     })
     response.redirect("/login")
     });
+
+    //function to user matching
+    app.get('/createRoom', function(request, response){
+        username = request.session.username;
+        var neo4j_session = neo4j_connection.session();
+        var cyp1 = 'MATCH (a:User{username:$username}) RETURN a.online'
+        var param = {username:username}
+        var result = neo4j_session.run(cyp1, param).then(results => {
+                return  results.records.map(record =>{
+                console.log(record.get('a.online'));
+            })
+            }).then(()=>{
+                neo4j_session.close()
+        });
+        console.log(result)
+        var neo4j_session2 = neo4j_connection.session();
+        var cyp = 'MATCH (a:User{username:$username})-[:INTERESTED_IN]->(b:Interest), (c:User{online:$online})-[:INTERESTED_IN]->(b) WITH b.subject AS Interests, (c).username as Users, count(c) as AlsoInterested RETURN Interests, AlsoInterested, Users';
+        var params = {username: username, online: "true"};
+        
+        neo4j_session2.run(cyp, params).then((result) => {
+            neo4j_session.close();
+        });
+        response.redirect('/chat')
+    })
 
     app.get('/chat', function(request, response){
         var room = online[0] + "_" + online[1];
