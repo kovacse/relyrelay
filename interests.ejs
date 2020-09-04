@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<link rel="stylesheet" type="text/css" href="/css/navbar.css">
+	<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<ul class="navbar">
+		<li><a class="login" href="/server.html">Login</a></li>
+		<li><a class="signup" href="/register.html">Sign up</a></li>
+		<li><a class="contact" href="contact.html">Contact</a></li>
+		<li><a class="about" href="about.html">About</a></li>
+	  </ul>
+	<head>
+		<meta charset="utf-8">
+		
+		
+		<title>Interests page</title>
+
+		
+	</head>
+	<body>
+		<div class="login-form">
+			<h1>Interests</h1>
+            <form action= "/interests" method="POST">
+            <div id = "checkboxes"></div>
+            
+            <script type="text/javascript">
+            //creating checkboxes for interests from list
+            var interests = ["movies", "music", "art", "pets", "fashion", "gaming", "literature", "fitness"];
+            var mental_stuff = ["depression", "anxiety", "autism", "bipolar disorder", "psychosis", "adhd", "panic disorder", "ocd", "ptsd", "phobia"];
+				
+			function createCheckBox(arr, start_counter){
+				console.log(arr.length)
+				for (var i = 0; i < start_counter; i += 1) {
+					console.log("fuuuuuuuuuu");
+					var box = document.createElement('input');
+					box.setAttribute('id', i);
+					box.setAttribute('name', 'interests');
+					box.setAttribute('type', 'checkbox');
+					box.setAttribute('value', arr[i]);
+					var l = document.createElement('label');
+					l.setAttribute('for', arr[i]);
+					l.appendChild(document.createTextNode(arr[i]));
+
+					checkboxes.appendChild(box);
+					checkboxes.appendChild(l);
+					}
+			console.log("wat")
+			}
+
+            window.onload = function(){
+				createCheckBox(interests, interests.length);
+				createCheckBox(mental_stuff, interests.length + 1);
+			}
+			</script>
+        	<input type="submit" placeholder="Set Interests">
+		</form>
+		</div>
+	</body>
+</html>
