@@ -12,21 +12,38 @@
 		<meta charset="utf-8">
 		
 		
-		<title>Home</title>
+		<title>RelyRelay - Home</title>
 
 		
 	</head>
 	<body>
-		<h1> Welcome: <%= username %> </h1>
+		<h1> Welcome to RelyRelay, <%= username %> </h1>
 		
 		<div class="homepage-list">
-			<button onclick="myFunction()">Chat Now</button>
-
+			<button id = "sub" onclick="myFunction()">Chat Now</button>
+			<form id = "secret" action= "/getRoom" method="POST">
+				<input name = "username2" type = "hidden" value="<%= username %>">
+			</form>
+			<script src="/socket.io/socket.io.js"></script>
 			<script>
 			function myFunction() {
 				//function here that creates the chatroom
 			window.open(href="/createRoom");
 			}
+
+			//if someone started a chat with user
+			var socket = io.connect();
+			socket.on('generated room', (data) => {
+			console.log(data.room, data.from, data.to);
+			if(data.to == "<%= username %>"){
+				var uFrom = document.createElement('input');
+				uFrom.setAttribute('name', 'room');
+				uFrom.setAttribute('type', 'hidden');
+				uFrom.setAttribute('value', data.room);
+				secret.appendChild(uFrom);
+				//$("#form").submit()
+				}
+			});
 			</script>
 		</div>
 	</body>

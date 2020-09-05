@@ -4,8 +4,7 @@
   <link rel="stylesheet" type="text/css" href="/css/main.css">
   <!-- <link rel="stylesheet" type="text/css" href="/css/chat.css"> -->
   <ul class="navbar">
-		<li><a class="login" href="/server.html">Login</a></li>
-		<li><a class="signup" href="/register.html">Sign up</a></li>
+    <li><a class="home" href="home">Home</a></li>
 		<li><a class="contact" href="contact.html">Contact</a></li>
 		<li><a class="about" href="about.html">About</a></li>
 	  </ul>
@@ -13,8 +12,7 @@
 		<meta charset="utf-8">
 		
 		
-    <title>Live chat</title>
-    <h1>Chat room <%= room %> </h1>
+    <title>RelyRelay - Live chat</title>
 
 		
 	</head>
@@ -26,7 +24,7 @@
         <ul id ="messages" class="messages"> </ul>
         <form action="/messaging" method="POST" id="chatForm">
           <input name="txt" autocomplete="off" autofocus="on" placeholder="type your message here..." /><button>Send</button>
-          <input name="room" value= <%= room %> type="hidden">
+          
         </form>
         <div id="messages"></div>
         <script>
@@ -54,6 +52,22 @@
         console.log(sender);
         location.reload();
         });
+
+      socket.on('generated room', (data) => {
+			console.log(data.room, data.to, data.from);
+			if(data.to == request.session.username){
+				var uFrom = document.createElement('input');
+				uFrom.setAttribute('name', 'room');
+				uFrom.setAttribute('type', 'hidden');
+				uFrom.setAttribute('value', data.room);
+				secret.appendChild(uFrom);
+				$("#form").submit()
+        }
+        
+      if(data.from == request.session.username){
+        request.session.room = data.room
+      }
+			});
       </script>
 
 	</body>

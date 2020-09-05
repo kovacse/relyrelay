@@ -17,6 +17,7 @@
     "http": "0.0.1-security",
     "mysql": "^2.18.1",
     "neo4j-driver": "^4.1.1",
+    "request-promise-native": "^1.0.9",
     "socket.io": "^2.3.0"
   }
 }
