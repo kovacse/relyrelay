@@ -503,7 +503,7 @@ app.post('/register', function(request, response){
 
  
 
-var server = app.listen(80);
+var server = app.listen(3000);
 //app.listen(3000);
 
 socket = io.listen(server);
