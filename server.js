@@ -8,6 +8,7 @@ var cassandra = require('cassandra-driver');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var neo4j = require('neo4j-driver');
+var cookieSession = require('cookie-session')
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
@@ -44,10 +45,12 @@ app.use(express.urlencoded({
     extended: true
   }))
 
-app.use(session({
+app.use(cookieSession({
+    name:'session',
     secret: 'secret',
-    resave: true,
-    saveUninitialized: true
+    maxAge: '24 * 60 * 60 * 1000'
+    //resave: true,
+    //saveUninitialized: true
 }));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -158,6 +161,7 @@ app.get('/logout', function(request, response){
     neo4j_session.run(cyp, params).then((result) => {
         neo4j_session.close();
     });
+    request.session = null;
     response.redirect('/login');
 });
 
