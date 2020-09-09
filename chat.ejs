@@ -2,7 +2,7 @@
 <html>
 	<link rel="stylesheet" type="text/css" href="/css/navbar.css">
   <link rel="stylesheet" type="text/css" href="/css/main.css">
-  <!-- <link rel="stylesheet" type="text/css" href="/css/chat.css"> -->
+  <link rel="stylesheet" type="text/css" href="/css/chat.css">
   <ul class="navbar">
     <li><a class="home" href="home">Home</a></li>
 		<li><a class="contact" href="contact.html">Contact</a></li>
@@ -21,12 +21,13 @@
         <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
       </head>
       <body>
-        <ul id ="messages" class="messages"> </ul>
+        <div id="messages" class="messages">
+        </div>
+
         <form action="/messaging" method="POST" id="chatForm">
-          <input name="txt" autocomplete="off" autofocus="on" placeholder="type your message here..." /><button>Send</button>
-          
+          <input name="txt" autocomplete="off" autofocus="on" placeholder="type your message here..." /><button>Send</button> 
         </form>
-        <div id="messages"></div>
+
         <script>
           $.get('/chat.json').then(function(response) {
             response = $.parseJSON(response);
@@ -69,6 +70,5 @@
       }
 			});
       </script>
-
 	</body>
 </html>

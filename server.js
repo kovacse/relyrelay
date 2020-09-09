@@ -12,7 +12,7 @@ var cookieSession = require('cookie-session')
 
 //set up db connection for mysql (user db)
 var db_connection = mysql.createConnection({
-    host: '34.105.143.57',
+    host: '35.189.68.169',
     user: 'root',
     password: 'password',
     database: 'Accounts'
@@ -20,7 +20,7 @@ var db_connection = mysql.createConnection({
 
 //set up db connection to cassandra (messaging service)
 var cass_client = new cassandra.Client({
-    contactPoints: ['35.189.68.169:9042'], 
+    contactPoints: ['34.105.143.57:9042'], 
     localDataCenter: 'datacenter1',
     keyspace: 'messaging'
     });
@@ -31,7 +31,7 @@ var cass_client = new cassandra.Client({
 //setting up neo4j connection
 //need to be the BOLT port connected
 var neo4j_connection = neo4j.driver(
-    'neo4j://35.234.144.155:7687',
+    'neo4j://35.230.135.146:7687',
     neo4j.auth.basic('neo4j', 'password')
 )
 
@@ -102,7 +102,7 @@ app.post('/interests', function(request, response){
         var neo4j_sessions = []
         
         for(var i = 0; i < interests.length; i += 1){
-            neo4j_conns[i] = neo4j.driver('neo4j://35.234.144.155:7687',neo4j.auth.basic('neo4j', 'password'))
+            neo4j_conns[i] = neo4j.driver('neo4j://35.230.135.146:7687',neo4j.auth.basic('neo4j', 'password'))
             neo4j_sessions[i] = neo4j_conns[i].session()
             var cyp2 = 'MATCH (a:User),(b:Interest) WHERE a.username = $username AND b.subject = $subject MERGE (a)-[r:INTERESTED_IN]->(b)';
             var params2 = {username: request.session.username, subject: interests[i]};
